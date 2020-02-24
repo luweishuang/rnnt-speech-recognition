@@ -5,13 +5,12 @@ import os
 
 
 def mp3_to_wav(filepath):
-
     try:
         audio_segment = AudioSegment.from_mp3(filepath)
         audio_segment.export('{}.wav'.format(filepath[:-4]), format='wav')
     except Exception:
+        print(filepath, " ---> mp3_to_wav failed")
         pass
-
     os.remove(filepath)
 
 
@@ -35,30 +34,21 @@ def remove_missing(data_dir, fname):
 
 
 def mp3_converter_job(mp3_filenames):
-
     for filename in mp3_filenames:
-
         if filename[-4:] != '.mp3':
             continue
-
         print(filename)
         mp3_to_wav(filename)
 
 
 def main(args):
-
     print('Converting all Common Voice MP3s to WAV...')
-
     clips_dir = os.path.join(args.data_dir, 'clips')
-
     all_clips = os.listdir(clips_dir)
     all_clips = [os.path.join(clips_dir, clip) for clip in all_clips]
-
     num_total = len(all_clips)
-
     num_cpus = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(num_cpus)
-
     job_size = num_total // num_cpus
 
     jobs = []
@@ -70,31 +60,18 @@ def main(args):
     all_clips = []
 
     pool.map_async(mp3_converter_job, jobs)
-
     pool.close()
     pool.join()
-
     print('Removing missing files...')
-
     tsv_files = ['dev', 'invalidated', 'other', 'test', 'train', 'validated']
-
     for _file in tsv_files:
         remove_missing(args.data_dir, _file)
-
     print('Done.')
 
 
-def parse_args():
-
-    ap = ArgumentParser()
-
-    ap.add_argument('--data_dir', required=True, type=str,
-        help='Path to common voice data directory.')
-    
-    return ap.parse_args()
-
 
 if __name__ == '__main__':
-
-    args = parse_args()
+    ap = ArgumentParser()
+    ap.add_argument('--data_dir', type=str, default='/home/psc/Desktop/code/github/asr/data/chinese', help='Path to common voice data directory.')
+    args = ap.parse_args()
     main(args)

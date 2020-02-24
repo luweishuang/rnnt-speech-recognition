@@ -15,11 +15,11 @@ FLAGS = flags.FLAGS
 
 # Required flags
 flags.DEFINE_enum(
-    'mode', None,
+    'mode', 'train',
     ['train'],
     'Mode to run.')
 flags.DEFINE_string(
-    'data_dir', None,
+    'data_dir', '/home/psc/Desktop/code/github/asr/data/en/commonVoice',
     'Input data directory.')
 
 # Optional flags
@@ -142,14 +142,11 @@ def train():
 
 
 def main(_):
-
     if FLAGS.mode == 'train':
         train()
 
 
 if __name__ == '__main__':
-
-    flags.mark_flag_as_required('mode')
-    flags.mark_flag_as_required('data_dir')
-
+    # flags.mark_flag_as_required('mode')
+    # flags.mark_flag_as_required('data_dir')
     app.run(main)

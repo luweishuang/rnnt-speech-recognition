@@ -4,22 +4,17 @@ from hparams import *
 
 
 def tf_load_audio(path):
-
     audio_raw = tf.io.read_file(path)
-
     return tf.audio.decode_wav(audio_raw)
 
 
 def normalize_text(text):
-
     return text.lower()
 
 
 def encode_text(text, vocab_table):
-
     byte_list = tf.strings.bytes_split(text)
     byte_list = tf.concat([['<s>'], byte_list, ['</s>']], axis=0)
-
     return vocab_table.lookup(byte_list)
 
 
@@ -30,16 +25,13 @@ def compute_mel_spectrograms(audio_arr,
                              frame_step, 
                              hertz_low,
                              hertz_high):
-
     sample_rate_f = tf.cast(sample_rate, dtype=tf.float32)
-
     frame_length = tf.cast(tf.round(sample_rate_f * frame_length), dtype=tf.int32)
     frame_step = tf.cast(tf.round(sample_rate_f * frame_step), dtype=tf.int32)
 
     stfts = tf.signal.stft(tf.transpose(audio_arr),
                            frame_length=frame_length,
                            frame_step=frame_step)
-
     mag_specs = tf.abs(stfts)
     num_spec_bins = tf.shape(mag_specs)[-1]
 
@@ -48,9 +40,7 @@ def compute_mel_spectrograms(audio_arr,
         sample_rate=sample_rate_f,
         lower_edge_hertz=hertz_low,
         upper_edge_hertz=hertz_high)
-
     mel_specs = tf.tensordot(mag_specs, linear_to_mel_weight_matrix, 1)
-
     return tf.squeeze(mel_specs)
 
 
@@ -58,7 +48,6 @@ def preprocess_dataset(dataset,
                        encoder_fn, 
                        batch_size, 
                        hparams):
-
     _dataset = dataset.shuffle(5000)
 
     _dataset = _dataset.map(lambda audio, sr, trans: (
@@ -86,10 +75,6 @@ def preprocess_dataset(dataset,
             'spec_lengths': [],
             'label_lengths': []
         }, [-1]))
-
-    _dataset = _dataset.prefetch(
-        tf.data.experimental.AUTOTUNE)
-
+    _dataset = _dataset.prefetch(tf.data.experimental.AUTOTUNE)
     _dataset = _dataset.repeat()
-
     return _dataset

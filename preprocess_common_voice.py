@@ -72,6 +72,6 @@ def main(args):
 
 if __name__ == '__main__':
     ap = ArgumentParser()
-    ap.add_argument('--data_dir', type=str, default='/home/psc/Desktop/code/github/asr/data/chinese', help='Path to common voice data directory.')
+    ap.add_argument('--data_dir', type=str, default='../data/en', help='Path to common voice data directory.')
     args = ap.parse_args()
     main(args)

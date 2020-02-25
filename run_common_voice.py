@@ -14,13 +14,8 @@ from hparams import *
 FLAGS = flags.FLAGS
 
 # Required flags
-flags.DEFINE_enum(
-    'mode', 'train',
-    ['train'],
-    'Mode to run.')
-flags.DEFINE_string(
-    'data_dir', '/home/psc/Desktop/code/github/asr/data/en/commonVoice',
-    'Input data directory.')
+flags.DEFINE_enum('mode', 'train', ['train'], 'Mode to run.')
+flags.DEFINE_string('data_dir', '../data/chinese', 'Input data directory.')
 
 # Optional flags
 flags.DEFINE_string(
@@ -43,25 +38,18 @@ def get_dataset_fn(base_path,
                    hparams):
 
     def _dataset_fn(name):
-
         dataset, dataset_size = common_voice.load_dataset(base_path, name)
-
         dataset = preprocessing.preprocess_dataset(dataset, 
             encoder_fn=encoder_fn,
             batch_size=batch_size,
             hparams=hparams)
-
         steps_per_epoch = dataset_size // batch_size
-
         return dataset, steps_per_epoch
-
     return _dataset_fn
 
 
 def train():
-
     hparams = {
-
         HP_TOKEN_TYPE: HP_TOKEN_TYPE.domain.values[0],
         HP_VOCAB_SIZE: HP_VOCAB_SIZE.domain.values[0],
 
@@ -83,33 +71,18 @@ def train():
         HP_SOFTMAX_SIZE: HP_SOFTMAX_SIZE.domain.values[0],
 
         HP_LEARNING_RATE: HP_LEARNING_RATE.domain.values[0]
-
     }
 
     if os.path.exists(os.path.join(FLAGS.model_dir, 'hparams.json')):
-
         _hparams = model_utils.load_hparams(FLAGS.model_dir)
-
-        encoder_fn, vocab_size = encoding.load_encoder(FLAGS.model_dir, 
-            hparams=_hparams)
-
-        model, loss_fn = model_utils.load_model(FLAGS.model_dir,
-            vocab_size=vocab_size, hparams=_hparams)
-
+        encoder_fn, vocab_size = encoding.load_encoder(FLAGS.model_dir, hparams=_hparams)
+        model, loss_fn = model_utils.load_model(FLAGS.model_dir, vocab_size=vocab_size, hparams=_hparams)
     else:
-
         _hparams = {k.name: v for k, v in hparams.items()}
-
         texts_gen = common_voice.texts_generator(FLAGS.data_dir)
-
-        encoder_fn, vocab_size = encoding.build_encoder(texts_gen,
-            model_dir=FLAGS.model_dir, hparams=_hparams)
-
+        encoder_fn, vocab_size = encoding.build_encoder(texts_gen, model_dir=FLAGS.model_dir, hparams=_hparams)
         model, loss_fn = build_keras_model(vocab_size, _hparams)
-
-    logging.info('Using {} encoder with vocab size: {}'.format(
-        _hparams[HP_TOKEN_TYPE.name], vocab_size))
-
+    logging.info('Using {} encoder with vocab size: {}'.format(_hparams[HP_TOKEN_TYPE.name], vocab_size))
     dataset_fn = get_dataset_fn(FLAGS.data_dir, 
         encoder_fn=encoder_fn,
         batch_size=FLAGS.batch_size,
@@ -117,18 +90,12 @@ def train():
 
     train_dataset, train_steps = dataset_fn('train')
     dev_dataset, dev_steps = dataset_fn('dev')
-    
     optimizer = tf.keras.optimizers.Adam(_hparams[HP_LEARNING_RATE.name])
-
-    model.compile(loss=loss_fn, optimizer=optimizer,
-        experimental_run_tf_function=False)
+    model.compile(loss=loss_fn, optimizer=optimizer, experimental_run_tf_function=False)
 
     os.makedirs(FLAGS.model_dir, exist_ok=True)
-    checkpoint_fp = os.path.join(FLAGS.model_dir,
-        'model.{epoch:03d}-{val_loss:.4f}.hdf5')
-
+    checkpoint_fp = os.path.join(FLAGS.model_dir, 'model.{epoch:03d}-{val_loss:.4f}.hdf5')
     model_utils.save_hparams(_hparams, FLAGS.model_dir)
-
     model.fit(train_dataset,
         epochs=FLAGS.n_epochs,
         steps_per_epoch=train_steps,
@@ -136,8 +103,7 @@ def train():
         validation_steps=dev_steps,
         callbacks=[
             tf.keras.callbacks.TensorBoard(FLAGS.tb_log_dir),
-            tf.keras.callbacks.ModelCheckpoint(checkpoint_fp,
-                save_weights_only=True)
+            tf.keras.callbacks.ModelCheckpoint(checkpoint_fp, save_weights_only=True)
         ])
 
 
@@ -147,6 +113,4 @@ def main(_):
 
 
 if __name__ == '__main__':
-    # flags.mark_flag_as_required('mode')
-    # flags.mark_flag_as_required('data_dir')
     app.run(main)

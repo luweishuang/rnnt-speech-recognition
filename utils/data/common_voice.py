@@ -20,25 +20,18 @@ def tf_parse_line(line, data_dir):
 
 
 def load_dataset(base_path, name):
-
     filepath = os.path.join(base_path, '{}.tsv'.format(name))
-
     with open(filepath, 'r') as f:
         dataset_size = sum(1 for _ in f) - 1
 
     dataset = tf.data.TextLineDataset([filepath])
-
     dataset = dataset.skip(1)
-    dataset = dataset.map(lambda line: tf_parse_line(line, base_path),
-        num_parallel_calls=tf.data.experimental.AUTOTUNE)
-
+    dataset = dataset.map(lambda line: tf_parse_line(line, base_path), num_parallel_calls=tf.data.experimental.AUTOTUNE)
     return dataset, dataset_size
 
 
 def texts_generator(base_path):
-
     split_names = ['dev', 'train', 'test']
-
     for split_name in split_names:
         with open(os.path.join(base_path, '{}.tsv'.format(split_name)), 'r') as f:
             for line in f:

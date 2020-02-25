@@ -11,8 +11,9 @@ from hparams import *
 FLAGS = flags.FLAGS
 
 # Required flags
-flags.DEFINE_enum('mode', 'train', ['train'], 'Mode to run.')
+flags.DEFINE_enum('mode', 'train', ['train', 'transcribe-file'], 'Mode to run.')
 flags.DEFINE_string('data_dir', '../data/chinese', 'Input data directory.')
+flags.DEFINE_string('test_file', 'test/common_voice_zh-CN_18909684.wav', 'wav file for test.')
 
 # Optional flags
 flags.DEFINE_string('tb_log_dir', './logs', 'Directory to save Tensorboard logs.')
@@ -95,9 +96,26 @@ def train():
         ])
 
 
+def transcribe_file():
+    if os.path.exists(os.path.join(FLAGS.model_dir, 'hparams.json')):
+        _hparams = model_utils.load_hparams(FLAGS.model_dir)
+        encoder_fn, vocab_size = encoding.load_encoder(FLAGS.model_dir, hparams=_hparams)
+        model, loss_fn = model_utils.load_model(FLAGS.model_dir, vocab_size=vocab_size, hparams=_hparams)
+        optimizer = tf.keras.optimizers.Adam(_hparams[HP_LEARNING_RATE.name])
+        model.compile(loss=loss_fn, optimizer=optimizer, experimental_run_tf_function=False)
+    else:
+        print('need afford model_dir ')
+        return
+    transcription = model.predict(FLAGS.test_file)
+    print('Input file: {}'.format(FLAGS.input))
+    print('Transcription: {}'.format(transcription))
+
+
 def main(_):
     if FLAGS.mode == 'train':
         train()
+    elif FLAGS.mode == 'transcribe-file':
+        transcribe_file()
 
 
 if __name__ == '__main__':

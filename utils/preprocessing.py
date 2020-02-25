@@ -28,7 +28,6 @@ def compute_mel_spectrograms(audio_arr,
     sample_rate_f = tf.cast(sample_rate, dtype=tf.float32)
     frame_length = tf.cast(tf.round(sample_rate_f * frame_length), dtype=tf.int32)
     frame_step = tf.cast(tf.round(sample_rate_f * frame_step), dtype=tf.int32)
-
     stfts = tf.signal.stft(tf.transpose(audio_arr),
                            frame_length=frame_length,
                            frame_step=frame_step)

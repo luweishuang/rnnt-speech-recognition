@@ -29,6 +29,8 @@ pip install tensorflow==2.1.0
 pip install -r requirements.txt
 conda install cudatoolkit=10.1
 conda install cudnn
+sudo apt-get install -y gcc-4.7 g++-4.7
+sh scripts/build_rnnt.sh
 ```
 
 Once your environment is all set you are ready to start training your own models.

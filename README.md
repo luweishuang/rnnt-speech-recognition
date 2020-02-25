@@ -25,8 +25,10 @@ To setup your environment, run the following commands:
 ```
 git clone --recurse https://github.com/noahchalifour/rnnt-speech-recognition.git
 cd rnnt-speech-recognition
-pip install tensorflow==2.1.0 # or tensorflow-gpu==2.1.0 for GPU support
+pip install tensorflow==2.1.0 
 pip install -r requirements.txt
+conda install cudatoolkit=10.1
+conda install cudnn
 ```
 
 Once your environment is all set you are ready to start training your own models.

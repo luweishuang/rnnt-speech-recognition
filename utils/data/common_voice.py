@@ -5,7 +5,6 @@ from .. import preprocessing
 
 
 def tf_parse_line(line, data_dir):
-
     line_split = tf.strings.split(line, '\t')
 
     audio_fn = line_split[1]
@@ -15,7 +14,6 @@ def tf_parse_line(line, data_dir):
     wav_filepath = tf.strings.substr(audio_filepath, 0, tf.strings.length(audio_filepath) - 4) + '.wav'
 
     audio, sr = preprocessing.tf_load_audio(wav_filepath)
-
     return audio, sr, transcription
 
 

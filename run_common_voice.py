@@ -1,8 +1,5 @@
 from absl import flags, logging, app
-from tensorboard.plugins.hparams import api as hp
-import json
 import os
-import re
 import tensorflow as tf
 
 from utils.data import common_voice
@@ -18,25 +15,16 @@ flags.DEFINE_enum('mode', 'train', ['train'], 'Mode to run.')
 flags.DEFINE_string('data_dir', '../data/chinese', 'Input data directory.')
 
 # Optional flags
-flags.DEFINE_string(
-    'tb_log_dir', './logs',
-    'Directory to save Tensorboard logs.')
-flags.DEFINE_string(
-    'model_dir', './model',
-    'Directory to save model.')
-flags.DEFINE_integer(
-    'batch_size', 32,
-    'Training batch size.')
-flags.DEFINE_integer(
-    'n_epochs', 1000,
-    'Number of training epochs.')
+flags.DEFINE_string('tb_log_dir', './logs', 'Directory to save Tensorboard logs.')
+flags.DEFINE_string('model_dir', './model', 'Directory to save model.')
+flags.DEFINE_integer('batch_size', 32, 'Training batch size.')
+flags.DEFINE_integer('n_epochs', 1000, 'Number of training epochs.')
 
 
 def get_dataset_fn(base_path, 
                    encoder_fn, 
                    batch_size, 
                    hparams):
-
     def _dataset_fn(name):
         dataset, dataset_size = common_voice.load_dataset(base_path, name)
         dataset = preprocessing.preprocess_dataset(dataset, 

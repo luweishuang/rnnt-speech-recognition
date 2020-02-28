@@ -5,7 +5,10 @@ cd warp-transducer
 mkdir build
 cd build
 
-CC=gcc-4.8 CXX=g++-4.8 cmake ..
+
+CC=gcc-4.8 CXX=g++-4.8 cmake \
+    -DCUDA_TOOLKIT_ROOT_DIR=$CUDA_HOME ..
+
 make
 cd ../tensorflow_binding
 

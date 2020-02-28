@@ -83,5 +83,5 @@ if __name__ == '__main__':
     ap = ArgumentParser()
     ap.add_argument('--data_dir', type=str, default='../data/en', help='Path to common voice data directory.')
     args = ap.parse_args()
-    # main_preprocess(args)
+    main_preprocess(args)
     check_file(args)

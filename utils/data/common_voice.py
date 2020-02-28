@@ -13,11 +13,12 @@ def tf_parse_line(line, data_dir):
     audio_filepath = tf.strings.join([data_dir, 'clips', audio_fn], '/')
     wav_filepath = tf.strings.substr(audio_filepath, 0, tf.strings.length(audio_filepath) - 4) + '.wav'
 
-    if os.path.exists(wav_filepath):
-        audio, sr = preprocessing.tf_load_audio(wav_filepath)
-    else:
-        print(wav_filepath, " don't exist")
-    # audio, sr = preprocessing.tf_load_audio(wav_filepath)
+    # if os.path.exists(wav_filepath):
+    #     audio, sr = preprocessing.tf_load_audio(wav_filepath)
+    # else:
+    #     print(wav_filepath, " don't exist")
+    print(wav_filepath)
+    audio, sr = preprocessing.tf_load_audio(wav_filepath)
     return audio, sr, transcription
 
 

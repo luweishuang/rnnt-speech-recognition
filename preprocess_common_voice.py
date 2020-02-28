@@ -14,25 +14,6 @@ def mp3_to_wav(filepath):
     os.remove(filepath)
 
 
-def remove_missing(data_dir, fname):
-
-    clips_dir = os.path.join(data_dir, 'clips')
-
-    old_filepath = os.path.join(data_dir, '{}.tsv'.format(fname))
-    new_filepath = os.path.join(data_dir, '{}-tmp.tsv'.format(fname))
-
-    with open(old_filepath, 'r') as old_f:
-        with open(new_filepath, 'w') as new_f:
-            new_f.write(next(old_f))
-            for line in old_f:
-                audio_fn = line.split('\t')[1][:-4] + '.wav'
-                if os.path.exists(os.path.join(clips_dir, audio_fn)):
-                    new_f.write(line)
-
-    os.remove(old_filepath)
-    os.rename(new_filepath, old_filepath)
-
-
 def mp3_converter_job(mp3_filenames):
     for filename in mp3_filenames:
         if filename[-4:] != '.mp3':
@@ -41,7 +22,7 @@ def mp3_converter_job(mp3_filenames):
         mp3_to_wav(filename)
 
 
-def main(args):
+def main_preprocess(args):
     print('Converting all Common Voice MP3s to WAV...')
     clips_dir = os.path.join(args.data_dir, 'clips')
     all_clips = os.listdir(clips_dir)
@@ -55,18 +36,40 @@ def main(args):
     for _ in range(num_cpus - 1):
         jobs.append(all_clips[:job_size])
         all_clips[job_size:]
-
     jobs.append(all_clips)
-    all_clips = []
 
     pool.map_async(mp3_converter_job, jobs)
     pool.close()
     pool.join()
     print('Removing missing files...')
+    return
+
+
+def remove_missing(data_dir, fname):
+    clips_dir = os.path.join(data_dir, 'clips')
+
+    old_filepath = os.path.join(data_dir, '{}.tsv'.format(fname))
+    new_filepath = os.path.join(data_dir, '{}-tmp.tsv'.format(fname))
+
+    with open(old_filepath, 'r') as old_f:
+        with open(new_filepath, 'w') as new_f:
+            new_f.write(next(old_f))
+            for line in old_f:
+                audio_fn = line.split('\t')[1][:-4] + '.wav'
+                if os.path.exists(os.path.join(clips_dir, audio_fn)):
+                    new_f.write(line)
+                else:
+                    print(audio_fn, " don't exist")
+
+    os.remove(old_filepath)
+    os.rename(new_filepath, old_filepath)
+
+
+def check_file(args):
     tsv_files = ['dev', 'invalidated', 'other', 'test', 'train', 'validated']
     for _file in tsv_files:
         remove_missing(args.data_dir, _file)
-    print('Done.')
+    print('remove_missing Done.')
 
 
 
@@ -74,4 +77,5 @@ if __name__ == '__main__':
     ap = ArgumentParser()
     ap.add_argument('--data_dir', type=str, default='../data/en', help='Path to common voice data directory.')
     args = ap.parse_args()
-    main(args)
+    # main_preprocess(args)
+    check_file(args)

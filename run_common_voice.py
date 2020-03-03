@@ -12,7 +12,7 @@ FLAGS = flags.FLAGS
 
 # Required flags
 flags.DEFINE_enum('mode', 'train', ['train', 'transcribe-file'], 'Mode to run.')
-flags.DEFINE_string('data_dir', '../data/en', 'Input data directory.')
+flags.DEFINE_string('data_dir', '../data/chinese', 'Input data directory.')
 flags.DEFINE_string('test_file', 'test/common_voice_zh-CN_18909684.wav', 'wav file for test.')
 
 # Optional flags

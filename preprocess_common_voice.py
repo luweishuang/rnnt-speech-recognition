@@ -35,7 +35,7 @@ def main_preprocess(args):
     jobs = []
     for _ in range(num_cpus - 1):
         jobs.append(all_clips[:job_size])
-        all_clips[job_size:]
+        all_clips = all_clips[job_size:]
     jobs.append(all_clips)
 
     pool.map_async(mp3_converter_job, jobs)
@@ -56,8 +56,6 @@ def remove_missing(data_dir, fname, cnt):
             new_f.write(next(old_f))
             for line in old_f:
                 audio_fn = line.split('\t')[1][:-4] + '.wav'
-                # if "common_voice_en_18852089" in audio_fn:
-                #     print(audio_fn)
                 if os.path.exists(os.path.join(clips_dir, audio_fn)):
                     cnt += 1
                     new_f.write(line)
@@ -81,7 +79,7 @@ def check_file(args):
 
 if __name__ == '__main__':
     ap = ArgumentParser()
-    ap.add_argument('--data_dir', type=str, default='../data/en', help='Path to common voice data directory.')
+    ap.add_argument('--data_dir', type=str, default='../data/chinese', help='Path to common voice data directory.')
     args = ap.parse_args()
     main_preprocess(args)
     check_file(args)

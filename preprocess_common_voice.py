@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 from pydub import AudioSegment
 import multiprocessing
 import os
+import tensorflow as tf
 
 
 def mp3_to_wav(filepath):
@@ -45,7 +46,16 @@ def main_preprocess(args):
     return
 
 
-def remove_missing(data_dir, fname, cnt):
+def read_file_test(filepath):
+    try:
+        audio_raw = tf.io.read_file(filepath)
+        audio, sr = tf.audio.decode_wav(audio_raw)
+        return True
+    except ImportError:
+        return False
+
+
+def remove_missing(data_dir, fname, cnt_list):
     clips_dir = os.path.join(data_dir, 'clips')
 
     old_filepath = os.path.join(data_dir, '{}.tsv'.format(fname))
@@ -56,9 +66,14 @@ def remove_missing(data_dir, fname, cnt):
             new_f.write(next(old_f))
             for line in old_f:
                 audio_fn = line.split('\t')[1][:-4] + '.wav'
-                if os.path.exists(os.path.join(clips_dir, audio_fn)):
-                    cnt += 1
-                    new_f.write(line)
+                cur_wav_file = os.path.join(clips_dir, audio_fn)
+                if os.path.exists(cur_wav_file):
+                    if read_file_test(cur_wav_file):
+                        cnt_list[0] += 1
+                        new_f.write(line)
+                    else:
+                        print(cur_wav_file, " ----> read wav failed.")
+                        os.remove(cur_wav_file)
                 else:
                     print(audio_fn, " don't exist")
 
@@ -68,11 +83,11 @@ def remove_missing(data_dir, fname, cnt):
 
 def check_file(args):
     tsv_files = ['dev', 'invalidated', 'other', 'test', 'train', 'validated']
-    cnt = 0
+    cnt_list = [0]
     for _file in tsv_files:
-        remove_missing(args.data_dir, _file, cnt)
-        print("cnt = %d " % cnt)      # 896452
-    print("all cnt = %d " % cnt)  # 896452
+        remove_missing(args.data_dir, _file, cnt_list)
+        print("cnt = %d " % cnt_list[0])      # 896452
+    print("all cnt = %d " % cnt_list[0])  # 896452
     print('remove_missing Done.')
 
 
@@ -81,5 +96,5 @@ if __name__ == '__main__':
     ap = ArgumentParser()
     ap.add_argument('--data_dir', type=str, default='../data/chinese', help='Path to common voice data directory.')
     args = ap.parse_args()
-    main_preprocess(args)
+    # main_preprocess(args)
     check_file(args)

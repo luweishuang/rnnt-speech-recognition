@@ -50,9 +50,9 @@ def read_file_test(filepath):
     try:
         audio_raw = tf.io.read_file(filepath)
         audio, sr = tf.audio.decode_wav(audio_raw)
-        return True
-    except ImportError:
+    except:
         return False
+    return True
 
 
 def remove_missing(data_dir, fname, cnt_list):
@@ -94,7 +94,7 @@ def check_file(args):
 
 if __name__ == '__main__':
     ap = ArgumentParser()
-    ap.add_argument('--data_dir', type=str, default='../data/chinese', help='Path to common voice data directory.')
+    ap.add_argument('--data_dir', type=str, default='../data/en', help='Path to common voice data directory.')
     args = ap.parse_args()
     # main_preprocess(args)
     check_file(args)

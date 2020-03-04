@@ -68,12 +68,14 @@ def remove_missing(data_dir, fname, cnt_list):
                 audio_fn = line.split('\t')[1][:-4] + '.wav'
                 cur_wav_file = os.path.join(clips_dir, audio_fn)
                 if os.path.exists(cur_wav_file):
-                    if read_file_test(cur_wav_file):
-                        cnt_list[0] += 1
-                        new_f.write(line)
-                    else:
-                        print(cur_wav_file, " ----> read wav failed.")
-                        os.remove(cur_wav_file)
+                    cnt_list[0] += 1
+                    new_f.write(line)
+                    # if read_file_test(cur_wav_file):
+                    #     cnt_list[0] += 1
+                    #     new_f.write(line)
+                    # else:
+                    #     print(cur_wav_file, " ----> read wav failed.")
+                    #     os.remove(cur_wav_file)
                 else:
                     print(audio_fn, " don't exist")
 
